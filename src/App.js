@@ -24,27 +24,34 @@ function App() {
 
   const handleClickNext = () => {
     setListOffset(listOffset + 10);
+    setSearch('');
   };
   const handleClickPrevious = () => {
-    if (listOffset > 0) {
-      setListOffset(listOffset - 10);
+    setListOffset(listOffset - 10);
+    setSearch('');
+  };
+
+  const handleChange = (e) => {
+    setSearch(e.target.value);
+  };
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (search.length > 0) {
+      setLoading(true);
+      axios
+        .get(`https://pokeapi.co/api/v2/pokemon/${search}`)
+        .then((res) => {
+          setPokemons([res.data]);
+          setLoading(false);
+        })
+        .catch(() => {
+          setLoading(false);
+          setPokemons([]);
+        });
     } else {
       return;
     }
-  };
-
-  const handleSearch = () => {
-    setLoading(true);
-    axios
-      .get(`https://pokeapi.co/api/v2/pokemon/${search}`)
-      .then((res) => {
-        setPokemons([res.data]);
-        setLoading(false);
-      })
-      .catch(() => {
-        setLoading(false);
-        setPokemons([]);
-      });
   };
 
   return (
@@ -58,16 +65,24 @@ function App() {
       </header>
       <body>
         <section>
-          <input type="text" onChange={(e) => setSearch(e.target.value)} />
-          <button onClick={handleSearch}>find Pokemon</button>
-          <button onClick={handleClickNext}>next</button>
-          <button onClick={handleClickPrevious}>back</button>
+          <form className="App__search" onSubmit={handleSearch}>
+            <input type="text" onChange={handleChange} value={search} />
+            <button>find Pokemon</button>
+          </form>
+          <div className="App__navigation">
+            <button onClick={handleClickPrevious} disabled={listOffset === 0}>
+              previous
+            </button>
+            <button onClick={handleClickNext}>next</button>
+          </div>
         </section>
         <section>
           {loading ? (
-            <p>loading...</p>
+            <div className="App__single-container">
+              <p>loading...</p>
+            </div>
           ) : pokemons.length === 1 ? (
-            <div>
+            <div className="App__single-container">
               <Pokemon
                 key={pokemons[0].id}
                 name={pokemons[0].name}
@@ -75,9 +90,11 @@ function App() {
               />
             </div>
           ) : pokemons.length === 0 ? (
-            <p>no pokemon found</p>
+            <div className="App__single-container">
+              <p>no pokemon found</p>
+            </div>
           ) : (
-            <div>
+            <div className="App__pokemons-container">
               {pokemons.map((pokemon) => (
                 <Pokemon
                   key={pokemon.url}
