@@ -23,16 +23,20 @@ function App() {
   }, [listOffset]);
 
   const handleClickNext = () => {
-    setListOffset(listOffset + 10);
+    setListOffset((prevState) => prevState + 10);
     setSearch('');
   };
   const handleClickPrevious = () => {
-    setListOffset(listOffset - 10);
+    setListOffset((prevState) => prevState - 10);
     setSearch('');
   };
 
   const handleChange = (e) => {
     setSearch(e.target.value.toLowerCase());
+  };
+
+  const imageLoaded = (data) => {
+    console.log(data);
   };
 
   const handleSearch = (e) => {
@@ -43,7 +47,6 @@ function App() {
         .get(`https://pokeapi.co/api/v2/pokemon/${search}`)
         .then((res) => {
           setPokemons([res.data]);
-          setLoading(false);
         })
         .catch(() => {
           setLoading(false);
@@ -87,6 +90,7 @@ function App() {
                 key={pokemons[0].id}
                 name={pokemons[0].name}
                 url={`https://pokeapi.co/api/v2/pokemon/${pokemons[0].name}`}
+                imageLoaded={imageLoaded}
               />
             </div>
           ) : pokemons.length === 0 ? (
@@ -100,6 +104,7 @@ function App() {
                   key={pokemon.url}
                   name={pokemon.name}
                   url={pokemon.url}
+                  imageLoaded={imageLoaded}
                 />
               ))}
             </div>
